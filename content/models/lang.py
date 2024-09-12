@@ -7,6 +7,7 @@ class Language(models.Model):
     code = models.CharField(_("code"), max_length=2)
 
     class Meta:
+        db_table = "language"
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 

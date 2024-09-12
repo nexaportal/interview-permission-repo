@@ -3,11 +3,11 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Category(models.Model):
-    user = models.ForeignKey("account.User", on_delete=models.CASCADE, verbose_name=_("user"))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
 
     class Meta:
+        db_table = "category"
         verbose_name = _("category")
         verbose_name_plural = _("categories")
 
@@ -16,10 +16,8 @@ class Category(models.Model):
 
 
 class CategoryItem(models.Model):
-    category = models.ForeignKey("content.POST", on_delete=models.CASCADE, verbose_name=_("post"))
-    lang = models.ForeignKey(
-        "content.Language", on_delete=models.DO_NOTHING, verbose_name=_("language"), related_name="lang_items"
-    )
+    category = models.ForeignKey("content.Category", on_delete=models.CASCADE, verbose_name=_("post"))
+    lang = models.ForeignKey("content.Language", on_delete=models.DO_NOTHING, verbose_name=_("language"))
     author = models.ForeignKey("account.User", on_delete=models.CASCADE, verbose_name=_("author"))
 
     name = models.CharField(max_length=200, verbose_name=_("name"))
@@ -28,6 +26,7 @@ class CategoryItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
 
     class Meta:
+        db_table = "category_item"
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 
