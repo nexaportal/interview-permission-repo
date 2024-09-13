@@ -8,20 +8,15 @@ class Post(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
 
     class Meta:
+        db_table = "post"
         verbose_name = _("post")
         verbose_name_plural = _("posts")
 
-    def __str__(self):
-        return self.items.filter(lang="en")
+    # def __str__(self):
+    #     return self.items.filter(lang="en")
 
 
 class PostItem(models.Model):
-    user = models.ForeignKey(
-        "account.User",
-        on_delete=models.CASCADE,
-        verbose_name=_("user"),
-        related_name="user_post_items",  # Add related_name to avoid clash
-    )
     post = models.ForeignKey(
         "content.POST", on_delete=models.CASCADE, verbose_name=_("post"), related_name="post_items"
     )
