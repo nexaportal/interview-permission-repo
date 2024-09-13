@@ -20,8 +20,8 @@ class Perm(models.Model):
     field = models.CharField(_("field"), max_length=100, blank=True, null=True)
 
     class Meta:
-        verbose_name = "Role"
-        verbose_name_plural = "Roles"
+        verbose_name = "Perm"
+        verbose_name_plural = "Perms"
         ordering = ["name"]
 
     def __str__(self):

@@ -19,7 +19,8 @@ class User(AbstractUser):
     )
 
     class Meta:
-        table_name = "user"
+        # db_table name changed
+        db_table = "user"
         verbose_name = "User"
         verbose_name_plural = "Users"
 
