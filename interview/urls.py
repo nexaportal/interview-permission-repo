@@ -24,6 +24,7 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     path('api/v1/auth/', include('account.urls')),  # adjust to your auth app's name
+    path('api/v1/', include('content.urls')),  # adjust to your auth app's name
 
 ]
 

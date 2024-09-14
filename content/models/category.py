@@ -15,7 +15,7 @@ class Category(models.Model):
 
 
 class CategoryItem(models.Model):
-    category = models.ForeignKey("content.POST", on_delete=models.CASCADE, verbose_name=_("post"))
+    category = models.ForeignKey("content.Category", on_delete=models.CASCADE, verbose_name=_("category"))
     lang = models.ForeignKey(
         "content.Language",
         on_delete=models.DO_NOTHING,
