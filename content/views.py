@@ -12,12 +12,31 @@ from .serializers import (
     PostItemUpdateSerializer,
     PostItemSerializer
 )
+from account.permissions import HasRolePermission 
 
 
 class PostItemViewSet(viewsets.ModelViewSet):
     queryset = PostItem.objects.all()
     serializer_class = PostItemSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HasRolePermission]
+
+    def get_lang(self):
+        # check action before getting the languages
+        data = self.request.data
+        # Define language names based on the payload keys
+        language_names = data.keys()
+
+        # Fetch the languages from the database
+        languages = Language.objects.filter(name__in=language_names)
+
+        # Check if all the requested languages exist
+        if len(languages) != len(language_names):
+            return Response(
+                {"detail": "One or more languages do not exist."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return languages
+
 
     @swagger_auto_schema(
         request_body=openapi.Schema(
@@ -53,21 +72,8 @@ class PostItemViewSet(viewsets.ModelViewSet):
         )
     )
     def create(self, request, *args, **kwargs):
-        # Extract the data from the request
         data = request.data
-
-        # Define language names based on the payload keys
-        language_names = data.keys()
-
-        # Fetch the languages from the database
-        languages = Language.objects.filter(name__in=language_names)
-
-        # Check if all the requested languages exist
-        if len(languages) != len(language_names):
-            return Response(
-                {"detail": "One or more languages do not exist."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        languages = self.get_lang()
 
         # Create a Post object
         post = Post.objects.create()
@@ -134,6 +140,7 @@ class CategoryItemViewSet(viewsets.ModelViewSet):
             },
         )
     )
+    
     def create(self, request, *args, **kwargs):
         # Extract the languages and data from the request
         data = request.data

@@ -17,6 +17,9 @@ class User(AbstractUser):
         unique=True,
         # validators=[validate_mobile_number],   # @TODO <- here
     )
+    role_perms = models.ManyToManyField(
+        "account.RolePerm", verbose_name=_("roleperms"), related_name="users_roleperms"
+    )
 
     class Meta:
         db_table = "user"
