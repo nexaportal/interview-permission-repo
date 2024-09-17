@@ -37,32 +37,13 @@ class HasRolePermission(BasePermission):
         
         return False
     
-    def check_user_language_permission(self, user, language, action):
-        """
-        Check if the user has permission for the given action and language.
-        """
-        # Assuming you have a 'perm' model that links a user role to language permissions
-        user_permissions = user.role_perms.all()
-
-        for user_permission in user_permissions:
-            # Check if the permission matches the action ('create') and the language
-            if user_permission.perm.action == action and user_permission.perm.lang == language:
-                return True
-
-        # If no permission matches, return False
-        return False
-
     def has_permission(self, request, view):
         """
         Check for general permissions before object-level checks.
         Handles actions like 'create' where language comes from request data.
         """
-
-        # Get the action the user is trying to perform (e.g., 'create', 'update', etc.)
+        user = request.user
         action = view.action
-
-        if action == "list":
-            print(action)
 
         if action == "create":
             try:
@@ -72,35 +53,31 @@ class HasRolePermission(BasePermission):
                 else:
                     raise ValueError("get_lang not found in view")
                 
-                # Check if the user has permission for each language in the request
+                # Iterate through the languages and check if the user has permission for each one
                 for language in languages:
-                    # Ensure user has permission for the 'create' action and the given language
-                    if not self.check_user_language_permission(
-                        request.user, language, action):
+                    # If the user lacks permission for any language, return False immediately
+                    if not self.check_user_language_permission(user, language, action):
                         return False
+                
+                # If all language checks pass, return True
                 return True
 
             except ValueError as e:
                 # Handle the case where language is not properly provided
                 return False
 
-        return True
+        return True  # For other actions, you can add additional checks as needed
 
+    def check_user_language_permission(self, user, language, action):
+        """
+        Check if the user has permission for the given action and language.
+        """
+        user_permissions = user.role_perms.all()
 
+        for user_permission in user_permissions:
+            # Check if the permission matches the action ('create') and the given language
+            if user_permission.perm.action == action and user_permission.perm.lang == language:
+                return True
 
-        # Get the model class (e.g., PostItem) from the view's queryset
-        model_class = view.get_queryset().model
-
-        # Get the language using the `get_lang` method in the view
-        try:
-            language = view.get_lang()
-        except ValueError as e:
-            return False  # Handle language extraction failure as needed
-
-        # Fetch the user's role(s)
-        user_roles = request.user.role_perms.all()
-
-        # Check if the user has permission for the action, model, and language
-        content_type = ContentType.objects.get_for_model(model_class)
-        
-        return True
+        # If no permission matches, return False for this language
+        return False
