@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import CategoryItem, PostItem
-
+from account.serializers import FieldPermissionSerializer
 
 
 
@@ -22,7 +22,7 @@ class PostItemUpdateSerializer(serializers.ModelSerializer):
         fields = ['title', 'content']
 
 
-class PostItemSerializer(serializers.ModelSerializer):
+class PostItemSerializer(FieldPermissionSerializer):
     class Meta:
         model = PostItem
         fields = ['post', 'lang', 'title', 'content', 'author', 'created_at', 'updated_at']

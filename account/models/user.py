@@ -4,18 +4,10 @@ from django.utils.translation import gettext_lazy as _
 
 
 class User(AbstractUser):
-    """Model definition for User."""
-
-    """
-    @TODO you should save mobile number without first zero.
-            for example: 9112223344 (10 numbers)
-    @TODO you should add validation for mobile `validate_mobile_number`
-    """
     mobile = models.CharField(
         _("mobile"),
         max_length=10,
         unique=True,
-        # validators=[validate_mobile_number],   # @TODO <- here
     )
     role_perms = models.ManyToManyField(
         "account.RolePerm", verbose_name=_("roleperms"), related_name="users_roleperms"
