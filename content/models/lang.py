@@ -23,3 +23,7 @@ class Language(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.code})"
+
+    @classmethod
+    def get_by_code(cls, code: str):
+        return cls.objects.filter(code=code).first()

@@ -3,7 +3,7 @@ from django.contrib.auth.backends import ModelBackend
 from account.models import User
 
 
-class ModelBackendWithPhone(ModelBackend):
+class ModelBackendWithMobile(ModelBackend):
     """
     An auth backend with phone number and password
     """

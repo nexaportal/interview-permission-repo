@@ -18,12 +18,12 @@ class Post(TimeStampedModel):
         verbose_name_plural = _("posts")
 
     def __str__(self):
-        return self.items.filter(lang="en").first()
+        en_item = self.items.filter(lang__code="en").first()
+        return en_item.title if en_item else ""
 
 
 class PostItem(TimeStampedModel):
-    user = models.ForeignKey("account.User", on_delete=models.CASCADE, verbose_name=_("user"))
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name=_("post"), related_name="post_items")
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, verbose_name=_("post"), related_name="items")
     lang = models.ForeignKey(
         Language, on_delete=models.DO_NOTHING, verbose_name=_("language"), related_name="lang_post_items"
     )

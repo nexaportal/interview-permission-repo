@@ -13,7 +13,7 @@ class User(AbstractUser):
     mobile = PhoneNumberField(unique=True)
 
     def __str__(self):
-        return self.mobile
+        return str(self.mobile)
 
     def get_jwt_tokens(self):
         token = (
