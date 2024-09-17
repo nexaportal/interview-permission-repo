@@ -15,8 +15,17 @@ class Category(models.Model):
         return f"Category #{self.id}"
 
 
+"""
+    -  Relation Between Category and Category items added
+    -  Language Added as an entity in the project
+    
+"""
+
+
 class CategoryItem(models.Model):
-    category = models.ForeignKey("content.Category", on_delete=models.CASCADE, verbose_name=_("category"))
+    category = models.ForeignKey(
+        "content.Category", on_delete=models.CASCADE, verbose_name=_("category"), related_name="category_items"
+    )
     lang = models.ForeignKey(
         "content.Language", on_delete=models.DO_NOTHING, verbose_name=_("language"), related_name="lang_category_items"
     )
