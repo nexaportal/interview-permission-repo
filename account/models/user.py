@@ -14,15 +14,19 @@ class User(AbstractUser):
     @TODO you should add validation for mobile `validate_mobile_number`
     """
     username = None
-    USERNAME_FIELD = 'mobile'
-    REQUIRED_FIELDS = ['first_name', 'last_name']
+    USERNAME_FIELD = "mobile"
+    REQUIRED_FIELDS = ["first_name", "last_name"]
     objects = UserManager()
-
 
     mobile = models.CharField(
         _("mobile"),
         max_length=10,
         unique=True
+    )
+    roles = models.ManyToManyField(
+        "account.Role",
+        related_name="users",
+        blank=True
     )
 
     class Meta:
