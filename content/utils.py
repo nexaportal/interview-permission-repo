@@ -32,7 +32,6 @@ def get_post_request_data_languages(data):
     """
     Get valid languages based on post request data
     """
-
     language_codes = []
     fields = []
     for lang_code, values in data["items"].items():
@@ -54,3 +53,5 @@ def get_category_request_data_languages(data):
         language_codes.append(lang_code)
         for field_name, _ in values.items():
             fields.append(field_name)
+    
+    return language_codes, fields

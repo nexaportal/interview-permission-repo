@@ -38,7 +38,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     # Check user role permission language to create post object
     def create(self, request, *args, **kwargs):
-        language_codes, _ = get_post_request_data_languages(request.data["items"])
+        language_codes, _ = get_post_request_data_languages(request.data)
         permission_manager = PermissionManager(request.user, language_codes, "post", "create")
         permission_manager.validate_lang_permission()
 

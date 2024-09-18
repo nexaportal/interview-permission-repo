@@ -21,18 +21,19 @@ class RoleViewSet(ModelViewSet):
         serializer = RolePermSerializer(permissions, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=["patch"], url_path="permission")
-    def permission_update(self, request, pk=None):
-        role = self.get_object()
-        data = request.data.get("permissions", [])
+    # @action(detail=False, methods=["put"], url_path="permission")
+    # def permission_update(self, request, pk=None):
+    #     print(request)
+    #     role = self.get_object()
+    #     data = request.data.get("permissions", [])
 
-        for perm_data in data:
-            try:
-                perm = Perm.objects.get(id=perm_data["perm_id"])
-                role_perm, created = RolePerm.objects.get_or_create(role=role, perm=perm)
-                role_perm.value = perm_data["value"]
-                role_perm.save()
-            except Perm.DoesNotExist:
-                continue
+    #     for perm_data in data:
+    #         try:
+    #             perm = Perm.objects.get(id=perm_data["perm_id"])
+    #             role_perm, _ = RolePerm.objects.get_or_create(role=role, perm=perm)
+    #             role_perm.value = perm_data["value"]
+    #             role_perm.save()
+    #         except Perm.DoesNotExist:
+    #             continue
 
-        return Response({"status": "permissions updated"})
+    #     return Response({"status": "permissions updated"})

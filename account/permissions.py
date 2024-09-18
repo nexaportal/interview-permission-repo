@@ -9,6 +9,8 @@ from content.utils import get_languages_for_user, get_category_request_data_lang
 
 class HasLanguagePermission(BasePermission):
     def has_permission(self, request, view):
+        if view.action in ['list', 'retrieve']:
+            return True
         user = request.user
         model_ct = ContentType.objects.get_for_model(view.queryset.model)
         data = request.data
