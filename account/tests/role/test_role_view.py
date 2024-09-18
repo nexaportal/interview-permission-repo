@@ -1,3 +1,4 @@
+
 from rest_framework.test import APIClient
 from django.test import TestCase
 from account.models.user import User
@@ -22,9 +23,9 @@ class TestRoleViewSet(TestCase):
         response = self.client.get(f'/api/v1/role/{self.role.id}/permission/')
         self.assertEqual(response.status_code, 200)
 
-    # def test_permission_update(self):
-    #     data = {
-    #         "name": "CP3"
-    #     }
-    #     response = self.client.patch(f'/api/v1/role/{self.role.id}/permission/', data, format='json')
-    #     self.assertEqual(response.status_code, 200)
+    def test_permission_update(self):
+        data = {
+            "name": "CP3"
+        }
+        response = self.client.patch(f'/api/v1/role/{self.role.id}/permission/', data, format='json')
+        self.assertEqual(response.status_code, 200)
