@@ -27,15 +27,31 @@ class HasRolePermission(BasePermission):
         # Get the ContentType for the object (e.g., PostItem)
         obj_content_type = ContentType.objects.get_for_model(obj)
 
+        mapped_view_action = {
+            'retrieve': 'retrieve',
+            'update': 'update',
+            'partial_update': 'update',
+            'destroy': 'delete',
+        }
+
         for user_permission in user_permissions:
             # Compare the permission model with the object's content type
             if user_permission.perm.perm_model == obj_content_type:
                 # Compare the permission's language with the object's language
                 if obj.lang == user_permission.perm.lang:
-                    if view.action == user_permission.perm.action:
-                        return True
-        
+                    if mapped_view_action[view.action] == user_permission.perm.action:
+                        if view.action in ['update', 'partial_update', 'destroy']:
+                            if obj.author == user:
+                                return True
+                        else:
+                            return True
         return False
+    
+    def check_superuser(self, user):
+        """
+        Check if the user is a superuser.
+        """
+        return user.is_superuser
     
     def has_permission(self, request, view):
         """
@@ -45,28 +61,23 @@ class HasRolePermission(BasePermission):
         user = request.user
         action = view.action
 
+        if self.check_superuser(user):
+            return True
+        
         if action == "create":
             try:
-                # Check if the view has the 'get_lang' method to retrieve the languages
                 if hasattr(view, 'get_lang'):
                     languages = view.get_lang()
                 else:
                     raise ValueError("get_lang not found in view")
-                
-                # Iterate through the languages and check if the user has permission for each one
                 for language in languages:
-                    # If the user lacks permission for any language, return False immediately
                     if not self.check_user_language_permission(user, language, action):
                         return False
-                
-                # If all language checks pass, return True
                 return True
-
             except ValueError as e:
-                # Handle the case where language is not properly provided
                 return False
 
-        return True  # For other actions, you can add additional checks as needed
+        return False
 
     def check_user_language_permission(self, user, language, action):
         """

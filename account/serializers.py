@@ -1,11 +1,40 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
+from django.contrib.contenttypes.models import ContentType
+from .models import Role, RolePerm, Perm
+
 
 User = get_user_model()
 
-from rest_framework import serializers
-from django.contrib.contenttypes.models import ContentType
+
+
+
+class PermSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perm
+        fields = ['name', 'codename', 'perm_model', 'action', 'field', 'lang']
+
+class RolePermSerializer(serializers.ModelSerializer):
+    perm = PermSerializer()
+
+    class Meta:
+        model = RolePerm
+        fields = ['perm', 'value']
+
+class RoleSerializer(serializers.ModelSerializer):
+    role_permset = RolePermSerializer(many=True)
+
+    class Meta:
+        model = Role
+        fields = ['name', 'role_permset']
+
+
+
+
+
+
 class FieldPermissionSerializer(serializers.ModelSerializer):
     """
     A base serializer that checks field-level permissions for both read and write operations.
