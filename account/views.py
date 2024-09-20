@@ -6,19 +6,21 @@ from rest_framework.authtoken.models import Token
 from .models import Role, RolePerm
 from rest_framework import viewsets, status
 from django.contrib.auth import get_user_model
-from account.permissions import HasRolePermission 
+from account.permissions import HasRolePermission
 from rest_framework.decorators import action
 from drf_yasg.utils import swagger_auto_schema
 from .controllers import RolePermController, RoleController, PermController
 from .serializers import (
-    RegisterSerializer, LoginSerializer, RolePermSerializer, RolePermUpdateSerializer,
-    PermUpdateSerializer, PermSerializer
+    RegisterSerializer,
+    LoginSerializer,
+    RolePermSerializer,
+    RolePermUpdateSerializer,
+    PermUpdateSerializer,
+    PermSerializer,
 )
 
 
-
 User = get_user_model()
-
 
 
 class RegisterView(generics.CreateAPIView):
@@ -32,14 +34,13 @@ class RegisterView(generics.CreateAPIView):
         user = serializer.save()
 
         token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            "user": {
-                "mobile": user.mobile,
-                "first_name": user.first_name,
-                "last_name": user.last_name
+        return Response(
+            {
+                "user": {"mobile": user.mobile, "first_name": user.first_name, "last_name": user.last_name},
+                "token": token.key,
             },
-            "token": token.key
-        }, status=status.HTTP_201_CREATED)
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class LoginView(generics.GenericAPIView):
@@ -50,27 +51,28 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        user = serializer.validated_data['user']
+        user = serializer.validated_data["user"]
         login(request, user)
 
         token, created = Token.objects.get_or_create(user=user)
-        return Response({
-            "token": token.key,
-            "user": {
-                "mobile": user.mobile,
-                "first_name": user.first_name,
-                "last_name": user.last_name
-            }
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                "token": token.key,
+                "user": {"mobile": user.mobile, "first_name": user.first_name, "last_name": user.last_name},
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class RolePermViewSet(viewsets.ModelViewSet):
     serializer_class = RolePermSerializer
     queryset = RolePermController.list_role_perms()
-    permission_classes = [IsAdminUser, ]
+    permission_classes = [
+        IsAdminUser,
+    ]
 
     def get_serializer_class(self):
-        if self.action in ['update', 'partial_update']:
+        if self.action in ["update", "partial_update"]:
             return RolePermUpdateSerializer
         return self.serializer_class
 
@@ -99,8 +101,8 @@ class RolePermViewSet(viewsets.ModelViewSet):
         if deleted:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({"error": "RolePerm not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    @action(detail=True, methods=['get'], url_path='permission', url_name='permission-list')
+
+    @action(detail=True, methods=["get"], url_path="permission", url_name="permission-list")
     def list_permissions(self, request, pk=None):
         """
         GET: /api/v1/role/<pk>/permission/
@@ -114,7 +116,7 @@ class RolePermViewSet(viewsets.ModelViewSet):
         serializer = RolePermSerializer(role_perm)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['patch'], url_path='update-permission', url_name='permission-update')
+    @action(detail=True, methods=["patch"], url_path="update-permission", url_name="permission-update")
     def update_permissions(self, request, pk=None):
         """
         PATCH: /api/v1/role/<pk>/permission/

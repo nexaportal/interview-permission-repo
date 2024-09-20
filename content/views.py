@@ -10,9 +10,9 @@ from .serializers import (
     CategoryItemSerializer,
     CategoryItemUpdateSerializer,
     PostItemUpdateSerializer,
-    PostItemSerializer
+    PostItemSerializer,
 )
-from account.permissions import HasRolePermission 
+from account.permissions import HasRolePermission
 
 
 class PostItemViewSet(viewsets.ModelViewSet):
@@ -24,7 +24,7 @@ class PostItemViewSet(viewsets.ModelViewSet):
         queryset = super().get_queryset()
 
         # Filter the queryset for the 'list' action
-        if self.action == 'list':
+        if self.action == "list":
             permission = HasRolePermission()
             queryset = permission.check_permission_for_list(self.request, self, queryset)
 
@@ -47,7 +47,6 @@ class PostItemViewSet(viewsets.ModelViewSet):
             )
         return languages
 
-
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -57,27 +56,27 @@ class PostItemViewSet(viewsets.ModelViewSet):
                     properties={
                         "title": openapi.Schema(type=openapi.TYPE_STRING, description="Title in English"),
                         "content": openapi.Schema(type=openapi.TYPE_STRING, description="Content in English"),
-                    }
+                    },
                 ),
                 "fa": openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
                         "title": openapi.Schema(type=openapi.TYPE_STRING, description="Title in Farsi"),
                         "content": openapi.Schema(type=openapi.TYPE_STRING, description="Content in Farsi"),
-                    }
+                    },
                 ),
                 "ru": openapi.Schema(
                     type=openapi.TYPE_OBJECT,
                     properties={
                         "title": openapi.Schema(type=openapi.TYPE_STRING, description="Title in Russian"),
                         "content": openapi.Schema(type=openapi.TYPE_STRING, description="Content in Russian"),
-                    }
+                    },
                 ),
             },
             example={
                 "en": {"title": "English Title", "content": "English content"},
                 "fa": {"title": "عنوان فارسی", "content": "محتوای فارسی"},
-                "ru": {"title": "Русский заголовок", "content": "Русский контент"}
+                "ru": {"title": "Русский заголовок", "content": "Русский контент"},
             },
         )
     )
@@ -97,8 +96,8 @@ class PostItemViewSet(viewsets.ModelViewSet):
             post_item = PostItem.objects.create(
                 post=post,
                 lang=language,
-                title=item_data['title'],
-                content=item_data['content'],
+                title=item_data["title"],
+                content=item_data["content"],
                 author=request.user,  # Assumes the current user is the author
             )
             post_items.append(post_item)
@@ -106,40 +105,33 @@ class PostItemViewSet(viewsets.ModelViewSet):
         # Serialize the created PostItem objects
         serializer = self.get_serializer(post_items, many=True)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
+
 
 class CategoryItemViewSet(viewsets.ModelViewSet):
     queryset = CategoryItem.objects.all()
     serializer_class = CategoryItemSerializer
     permission_classes = [IsAuthenticated]
 
-
     def get_serializer_class(self):
-        if self.action in ['update', 'partial_update']:
+        if self.action in ["update", "partial_update"]:
             return CategoryItemUpdateSerializer
         return CategoryItemSerializer
-    
+
     @swagger_auto_schema(
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
                 "en": openapi.Schema(
                     type=openapi.TYPE_OBJECT,
-                    properties={
-                        "name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in English")
-                    }
+                    properties={"name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in English")},
                 ),
                 "fa": openapi.Schema(
                     type=openapi.TYPE_OBJECT,
-                    properties={
-                        "name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in Farsi")
-                    }
+                    properties={"name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in Farsi")},
                 ),
                 "ru": openapi.Schema(
                     type=openapi.TYPE_OBJECT,
-                    properties={
-                        "name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in Russian")
-                    }
+                    properties={"name": openapi.Schema(type=openapi.TYPE_STRING, description="Name in Russian")},
                 ),
             },
             required=["en", "fa", "ru"],  # Add required fields here
@@ -150,17 +142,16 @@ class CategoryItemViewSet(viewsets.ModelViewSet):
             },
         )
     )
-    
     def create(self, request, *args, **kwargs):
         # Extract the languages and data from the request
         data = request.data
 
         # Define language codes based on the payload keys
         language_names = data.keys()
-        
+
         # Fetch the languages from the database
         languages = Language.objects.filter(name__in=language_names)
-        
+
         # Check if all the requested languages exist
         if len(languages) != len(language_names):
             return Response(
@@ -181,7 +172,7 @@ class CategoryItemViewSet(viewsets.ModelViewSet):
                 category=category,
                 lang=language,
                 author=request.user,  # Assumes the current user is the author
-                name=item_data['name'],
+                name=item_data["name"],
             )
             category_items.append(category_item)
 

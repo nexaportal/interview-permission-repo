@@ -9,9 +9,7 @@ class User(AbstractUser):
         max_length=10,
         unique=True,
     )
-    role_perms = models.ManyToManyField(
-        "account.RolePerm", verbose_name=_("roleperms"), related_name="users_roleperms"
-    )
+    role_perms = models.ManyToManyField("account.RolePerm", verbose_name=_("roleperms"), related_name="users_roleperms")
 
     class Meta:
         db_table = "user"
