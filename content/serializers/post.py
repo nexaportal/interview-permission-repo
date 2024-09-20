@@ -79,8 +79,8 @@ class PostSerializer(serializers.ModelSerializer):
         for language, value in items_data.items():
             language = Language.objects.get(code=language)
             item = PostItem.objects.get(post=instance, lang=language)
-            item.title = value["title"]
-            item.content = value["content"]
+            if "title" in value : item.title = value["title"]
+            if "content" in value : item.content = value["content"]
             item.save()
 
         return instance

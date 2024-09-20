@@ -4,7 +4,7 @@ from content.models.post import Post, PostItem
 from content.models.lang import Language
 from account.models import User
 from account.models.role import Role
-from account.models.perm import Perm
+from account.models.perm import Perm, PermissionActionChoices
 from account.models.role_perm import RolePerm
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -30,13 +30,20 @@ class PostCreateTest(APITestCase):
             name='CreatePerm',
             lang=self.language,
             perm_model=self.post_content,
-            action='CREATE'
+            action=PermissionActionChoices.CREATE
         )
         self.list_perm = Perm.objects.create(
             name='ListPerm',
             lang=self.language,
             perm_model=self.post_content,
-            action='LIST',
+            action=PermissionActionChoices.LIST,
+            field='title'
+        )
+        self.update_field_perm = Perm.objects.create(
+            name='UpdateFieldPerm',
+            lang=self.language,
+            perm_model=self.post_content,
+            action=PermissionActionChoices.UPDATE,
             field='title'
         )
         self.create_role_perm = RolePerm.objects.create(
@@ -46,6 +53,21 @@ class PostCreateTest(APITestCase):
         self.list_role_perm = RolePerm.objects.create(
             role=self.role,
             perm=self.list_perm
+        )
+        self.update_role_perm = RolePerm.objects.create(
+            role=self.role,
+            perm=self.update_field_perm,
+            value=False
+        )
+        self.post = Post.objects.create()
+
+        # Create a PostItem for the language
+        self.post_item = PostItem.objects.create(
+            post=self.post,
+            lang=self.language,
+            title="Original Title",
+            content="Original Content",
+            author=self.user
         )
         refresh = RefreshToken.for_user(self.user)
         self.token = str(refresh.access_token)
@@ -72,10 +94,59 @@ class PostCreateTest(APITestCase):
         }
         response = self.client.post(url, data, headers=headers, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        post = Post.objects.get()
+        post = Post.objects.get(id=response.json()['id'])
         post_item = PostItem.objects.get(post=post, lang=self.language)
         self.assertEqual(post_item.title, "Test Post Title")
 
+    def test_update_title_post_forbidden(self):
+        headers = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        url = f'/api/v1/post/{self.post.id}/'
+        data = {
+            "items": {
+                "en": {
+                    "title": "Updated Post Title",
+                    "content": "Updated Post Content"
+                }
+            }
+        }
+        response = self.client.patch(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+    def test_update_content_post(self):
+        headers = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        url = f'/api/v1/post/{self.post.id}/'
+        data = {
+            "items": {
+                "en": {
+                    "content": "Updated Post Content"
+                }
+            }
+        }
+        response = self.client.patch(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+    def test_update_post(self):
+        headers = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        url = f'/api/v1/post/{self.post.id}/'
+        data = {
+            "items": {
+                "en": {
+                    "title": "Updated Post Title",
+                    "content": "Updated Post Content"
+                }
+            }
+        }
+        response = self.client.patch(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        
     '''
         Create A post That User Role Doesn`t have permission To create a post in that language
     '''

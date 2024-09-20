@@ -4,7 +4,7 @@ from content.models.category import Category, CategoryItem
 from content.models.lang import Language
 from account.models import User
 from account.models.role import Role
-from account.models.perm import Perm
+from account.models.perm import Perm, PermissionActionChoices
 from account.models.role_perm import RolePerm
 from rest_framework.authtoken.models import Token
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -30,13 +30,13 @@ class CategoryCreateTest(APITestCase):
             name='CreatePerm',
             lang=self.language,
             perm_model=self.category_content,
-            action='CREATE'
+            action=PermissionActionChoices.CREATE
         )
         self.list_perm = Perm.objects.create(
             name='ListPerm',
             lang=self.language,
             perm_model=self.category_content,
-            action='LIST',
+            action=PermissionActionChoices.LIST,
             field='name'
         )
         self.create_role_perm = RolePerm.objects.create(
@@ -45,8 +45,31 @@ class CategoryCreateTest(APITestCase):
         )
         self.list_role_perm = RolePerm.objects.create(
             role=self.role,
-            perm=self.list_perm
+            perm=self.list_perm,
+            value=False
         )
+        self.update_field_perm = Perm.objects.create(
+            name='UpdateFieldPerm',
+            lang=self.language,
+            perm_model=self.category_content,
+            action=PermissionActionChoices.UPDATE,
+            field='name'
+        )
+        self.update_role_perm = RolePerm.objects.create(
+            role=self.role,
+            perm=self.update_field_perm,
+            value=False
+        )
+        self.category = Category.objects.create(user=self.user)
+
+        # Create a CategoryItem for the language
+        self.category_item = CategoryItem.objects.create(
+            category=self.category,
+            lang=self.language,
+            name="Original Name",
+            author=self.user
+        )
+        
         refresh = RefreshToken.for_user(self.user)
         self.token = str(refresh.access_token)
         # Initialize API client
@@ -71,9 +94,27 @@ class CategoryCreateTest(APITestCase):
         }
         response = self.client.post(url, data, headers=headers, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        category = Category.objects.get()
+        category = Category.objects.get(id=response.json()['id'])
         category_item = CategoryItem.objects.get(category=category, lang=self.language)
         self.assertEqual(category_item.name, "Test Category")
+
+
+    def test_update_name_category_forbidden(self):
+        headers = {
+            "Authorization": f"Bearer {self.token}"
+        }
+        url = f'/api/v1/category/{self.category.id}/'
+        data = {
+            "items": {
+                "en": {
+                    "name": "Updated category Name"
+                }
+            }
+        }
+        response = self.client.patch(url, data, headers=headers, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
 
     '''
         Create A category That User Role Doesn`t have permission To create a category in that language

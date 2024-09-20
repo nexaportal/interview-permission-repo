@@ -46,7 +46,7 @@ class PostViewSet(viewsets.ModelViewSet):
 
     # Check user role permission language to update post object
     def update(self, request, *args, **kwargs):
-        language_codes, fields = get_post_request_data_languages(request.data["items"])
+        language_codes, fields = get_post_request_data_languages(request.data)
 
         permission_manager = PermissionManager(request.user, language_codes, "post", "update", fields)
 
