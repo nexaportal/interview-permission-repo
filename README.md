@@ -207,6 +207,10 @@ Execute the tests using:
 ```sh
 pytest
 ```
+or
+```sh
+python -m pytest
+```
 ### Test Coverage
 
 The tests cover various scenarios, including:
