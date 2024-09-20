@@ -10,11 +10,6 @@ class ContentBaseSerializer(serializers.ModelSerializer):
     items = serializers.DictField(write_only=True)
     child_serializer = None
 
-    def to_internal_value(self, data):
-        for lang_code in data["items"]:
-            data["items"][lang_code]["author"] = self.context["request"].user
-        return data
-
     def validate(self, attrs):
         attrs = super().validate(attrs)
         for lang_code in attrs["items"]:
@@ -32,13 +27,27 @@ class ContentBaseSerializer(serializers.ModelSerializer):
         item_model = instance.__class__.items.field.model
         for item in items.values():
             item[instance.__class__.__name__.lower()] = instance
-            new_items.append(item_model(**item))
+            new_items.append(item_model(author=self.context["request"].user, **item))
         item_model.objects.bulk_create(new_items)
         return instance
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["items"] = {}
+        excluded_langs = getattr(self.context["request"], "excluded_langs", [])
         for item in instance.items.all():
-            representation["items"][item.lang.code] = self.child_serializer(item).data
+            if item.lang in excluded_langs:
+                continue
+            representation["items"][item.lang.code] = self.child_serializer(item, context=self.context).data
+        return representation
+
+
+class ContentItemBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        read_only_fields = ("author",)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        for field in getattr(self.context["request"], "excluded_fields", {}).get(instance.lang.code, []):
+            representation.pop(field, None)
         return representation

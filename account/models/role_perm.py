@@ -1,14 +1,13 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from .perm import Perm
+from .role import Role
+
 
 class RolePerm(models.Model):
-    role = models.ForeignKey(
-        "account.Role", on_delete=models.CASCADE, verbose_name=_("role"), related_name="role_permset"
-    )
-    perm = models.ForeignKey(
-        "account.Perm", on_delete=models.CASCADE, verbose_name=_("perm"), related_name="perm_permset"
-    )
+    role = models.ForeignKey(Role, on_delete=models.CASCADE, verbose_name=_("role"), related_name="role_permset")
+    perm = models.ForeignKey(Perm, on_delete=models.CASCADE, verbose_name=_("perm"), related_name="perm_permset")
     value = models.BooleanField(default=True, verbose_name=_("has perm"))
 
     class Meta:

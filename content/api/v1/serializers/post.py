@@ -2,11 +2,11 @@ from rest_framework import serializers
 
 from content.models import Post, PostItem
 
-from .common import ContentBaseSerializer
+from .common import ContentBaseSerializer, ContentItemBaseSerializer
 
 
-class PostItemSerializer(serializers.ModelSerializer):
-    class Meta:
+class PostItemSerializer(ContentItemBaseSerializer):
+    class Meta(ContentItemBaseSerializer.Meta):
         model = PostItem
         fields = ("title", "content", "author")
 

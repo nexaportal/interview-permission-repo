@@ -2,11 +2,11 @@ from rest_framework import serializers
 
 from content.models import Category, CategoryItem
 
-from .common import ContentBaseSerializer
+from .common import ContentBaseSerializer, ContentItemBaseSerializer
 
 
-class CategoryItemSerializer(serializers.ModelSerializer):
-    class Meta:
+class CategoryItemSerializer(ContentItemBaseSerializer):
+    class Meta(ContentItemBaseSerializer.Meta):
         model = CategoryItem
         fields = ("name", "author")
 

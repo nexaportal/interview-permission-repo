@@ -1,15 +1,15 @@
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-
 from content.api.v1.serializers import CategorySerializer, CategoryItemSerializer
 from content.models import Category, CategoryItem
 
+from .common import BaseListCreateView, BaseRetrieveUpdateDestroyView
 
-class CategoryListCreateView(ListCreateAPIView):
+
+class CategoryListCreateView(BaseListCreateView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class CategoryRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+class CategoryRetrieveUpdateDestroyView(BaseRetrieveUpdateDestroyView):
     lookup_field = "category_id"
     lookup_url_kwarg = "category_id"
 
