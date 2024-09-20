@@ -27,6 +27,7 @@
 - [Running Tests your own bot](#tests)
 - [Authorization](#authorization)
 - [Permissions](#permissions)
+- [Conclusions](#conclusions)
 
 ## 🧐 About <a name = "about"></a>
 
@@ -142,7 +143,7 @@ Authorization : Bearer <Token>
 ###### implementing a simple and easy to read method in the serialization layer for the feature needed.
 
 
-## 💭 Conclusion <a name = "conclusion"></a>
+## 💭 Conclusions <a name = "conclusions"></a>
 ###### Role Based Permission Service is devided into two different applications.
 ###### It is tried to develop a robust service which is extendable for more entities as a permission layer.
 ###### Tests are covered for most test scenarios defined as crtiteria in the service.
