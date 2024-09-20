@@ -1,16 +1,25 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAdminUser
 from rest_framework.authtoken.models import Token
-from .models import Role
+from .models import Role, RolePerm
 from rest_framework import viewsets, status
-from .controllers import RoleService, PermService
-from .serializers import RegisterSerializer, LoginSerializer, RoleSerializer
 from django.contrib.auth import get_user_model
 from account.permissions import HasRolePermission 
+from rest_framework.decorators import action
+from drf_yasg.utils import swagger_auto_schema
+from .controllers import RolePermController, RoleController, PermController
+from .serializers import (
+    RegisterSerializer, LoginSerializer, RolePermSerializer, RolePermUpdateSerializer,
+    PermUpdateSerializer, PermSerializer
+)
+
+
 
 User = get_user_model()
+
+
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -55,19 +64,68 @@ class LoginView(generics.GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
-class RoleViewSet(viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
-    permission_classes = [HasRolePermission,]
+class RolePermViewSet(viewsets.ModelViewSet):
+    serializer_class = RolePermSerializer
+    queryset = RolePermController.list_role_perms()
+    permission_classes = [IsAdminUser, ]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Inject services here, which can be mocked in tests
-        perm_service = PermService()
-        self.role_service = RoleService(perm_service)
+    def get_serializer_class(self):
+        if self.action in ['update', 'partial_update']:
+            return RolePermUpdateSerializer
+        return self.serializer_class
 
-    def create(self, request, *args, **kwargs):
+    def list(self, request):
+        queryset = RolePermController.list_role_perms()
+        serializer = RolePermSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
         data = request.data
-        role = self.role_service.create_role(data)
-        serializer = self.get_serializer(role)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer = RolePermSerializer(data=data)
+        if serializer.is_valid():
+            role_perm = serializer.save()  # This will now use the controller methods
+            return Response(RolePermSerializer(role_perm).data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def retrieve(self, request, pk=None):
+        role_perm = RolePermController.get_role_perm(pk)
+        if role_perm:
+            serializer = RolePermSerializer(role_perm)
+            return Response(serializer.data)
+        return Response({"error": "RolePerm not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    def destroy(self, request, pk=None):
+        deleted = RolePermController.delete_role_perm(pk)
+        if deleted:
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"error": "RolePerm not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True, methods=['get'], url_path='permission', url_name='permission-list')
+    def list_permissions(self, request, pk=None):
+        """
+        GET: /api/v1/role/<pk>/permission/
+        Lists all permissions for the role with the given `pk`.
+        """
+        role_perm = RolePermController.get_role_perm(pk)
+        if not role_perm:
+            return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # role_perms = RolePermController.filter_role_perms(role=role)
+        serializer = RolePermSerializer(role_perm)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['patch'], url_path='update-permission', url_name='permission-update')
+    def update_permissions(self, request, pk=None):
+        """
+        PATCH: /api/v1/role/<pk>/permission/
+        Updates permissions for the role with the given `pk`.
+        """
+        role_perm = RolePermController.get_role_perm(pk)
+        if not role_perm:
+            return Response({"error": "Role not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        perm = role_perm.perm
+        data = request.data
+        updated_perm = PermController.update_perm(perm.id, data)
+        serializer = PermSerializer(updated_perm)
+        return Response(serializer.data, status=status.HTTP_200_OK)

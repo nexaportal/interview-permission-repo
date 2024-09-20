@@ -20,6 +20,16 @@ class PostItemViewSet(viewsets.ModelViewSet):
     serializer_class = PostItemSerializer
     permission_classes = [HasRolePermission]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        # Filter the queryset for the 'list' action
+        if self.action == 'list':
+            permission = HasRolePermission()
+            queryset = permission.check_permission_for_list(self.request, self, queryset)
+
+        return queryset
+
     def get_lang(self):
         # check action before getting the languages
         data = self.request.data

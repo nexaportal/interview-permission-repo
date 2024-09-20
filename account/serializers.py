@@ -4,36 +4,57 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from django.contrib.contenttypes.models import ContentType
 from .models import Role, RolePerm, Perm
-
+from .controllers import RoleController, PermController, RolePermController
 
 User = get_user_model()
 
 
+class RolePermUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RolePerm
+        fields = '__all__'
+
+
+class PermUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Perm
+        fields = '__all__'
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
 
 
 class PermSerializer(serializers.ModelSerializer):
     class Meta:
         model = Perm
-        fields = ['name', 'codename', 'perm_model', 'action', 'field', 'lang']
+        fields = '__all__'
+
+
 
 class RolePermSerializer(serializers.ModelSerializer):
+    role = RoleSerializer()
     perm = PermSerializer()
 
     class Meta:
         model = RolePerm
-        fields = ['perm', 'value']
-
-class RoleSerializer(serializers.ModelSerializer):
-    role_permset = RolePermSerializer(many=True)
-
-    class Meta:
-        model = Role
-        fields = ['name', 'role_permset']
+        fields = '__all__'
 
 
 
-
-
+    def create(self, validated_data):
+        # Extract role and perm data from the incoming request
+        role_data = validated_data.pop('role')
+        perm_data = validated_data.pop('perm')
+        role_instance = RoleController.create_role(role_data)
+        perm_instance = PermController.create_perm(perm_data)
+        role_perm = RolePermController.create_role_perm({
+            'role': role_instance,
+            'perm': perm_instance,
+            'value': validated_data.get('value', True)
+        })
+        return role_perm
 
 class FieldPermissionSerializer(serializers.ModelSerializer):
     """
