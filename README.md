@@ -133,17 +133,17 @@ Authorization : Bearer <Token>
 #### Different Roles can be defined based on restrictions needed. each role can have multiple permissions to Create/Update/Get/Delete categories or posts.
 
 ### Flow:
-#### . Create/Update Request: If a user wants to create or update a category or a post , Permissions will be checked based on the language the items have. when they pass the permission layer Field validation Layer will be applied. Field validation layer will validate permitted fields for a user
+###### . Create/Update Request: If a user wants to create or update a category or a post , Permissions will be checked based on the language the items have. when they pass the permission layer Field validation Layer will be applied. Field validation layer will validate permitted fields for a user
 
-#### . List/Retrieve Request: If a user wants to list or retrieve a single category or post, Permission will be applied Based on the fields and languages not as a general restriction. It means if an item has an english language and the user doesn`t have credential for english Language, that item wont be shown to ther user. forbidden response wont be sent for that.
+###### . List/Retrieve Request: If a user wants to list or retrieve a single category or post, Permission will be applied Based on the fields and languages not as a general restriction. It means if an item has an english language and the user doesn`t have credential for english Language, that item wont be shown to ther user. forbidden response wont be sent for that.
 
 ## 🔑 Key Points
-#### DynamicCategoryItemSerializer is implemented as a restriction for fields to serialize fields needed in the response
-#### implementing a simple and easy to read method in the serialization layer for the feature needed.
+###### DynamicCategoryItemSerializer is implemented as a restriction for fields to serialize fields needed in the response
+###### implementing a simple and easy to read method in the serialization layer for the feature needed.
 
 
 ## 💭 Conclusion <a name = "conclusion"></a>
-#### Role Based Permission Service is devided into two different applications.
-#### It is tried to develop a robust service which is extendable for more entities as a permission layer.
-#### Tests are covered for most test scenarios defined as crtiteria in the service.
-#### Libraries added in situation which are useful such as simplejwt , drf-yasg.
+###### Role Based Permission Service is devided into two different applications.
+###### It is tried to develop a robust service which is extendable for more entities as a permission layer.
+###### Tests are covered for most test scenarios defined as crtiteria in the service.
+###### Libraries added in situation which are useful such as simplejwt , drf-yasg.
