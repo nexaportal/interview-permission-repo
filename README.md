@@ -55,8 +55,8 @@ Follow the steps below to set up the project locally:
 
 ### 1. Clone the Repository
 ```sh
-    git clone https://github.com/bahaminabbasi/interview-permission-repo.git
-    cd yourproject
+git clone https://github.com/bahaminabbasi/interview-permission-repo.git
+cd yourproject
 ```
 
 ### 2. Create a Virtual Environment
