@@ -1,3 +1,4 @@
+from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
@@ -6,11 +7,14 @@ from phonenumber_field.modelfields import PhoneNumberField
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
 
+from .role import Role
+
 
 class User(AbstractUser):
     """Model definition for User."""
 
     mobile = PhoneNumberField(unique=True)
+    roles = models.ManyToManyField(Role, blank=True)
 
     def __str__(self):
         return str(self.mobile)

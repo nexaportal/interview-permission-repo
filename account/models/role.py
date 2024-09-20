@@ -1,5 +1,12 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+if TYPE_CHECKING:
+    from .role_perm import RolePerm
 
 
 class Role(models.Model):
@@ -8,6 +15,8 @@ class Role(models.Model):
         max_length=150,
         unique=True,
     )
+
+    role_permset: models.QuerySet[RolePerm]
 
     class Meta:
         verbose_name = "Role"

@@ -12,10 +12,9 @@ class RolePerm(models.Model):
     value = models.BooleanField(default=True, verbose_name=_("has perm"))
 
     class Meta:
-        db_table = "role_perm"
         verbose_name = _("role_perm")
         verbose_name_plural = _("role_perms")
-        unique_together = [["role", "perm"]]
+        unique_together = ("role", "perm")
         ordering = ["role", "perm"]
 
     def __str__(self):
