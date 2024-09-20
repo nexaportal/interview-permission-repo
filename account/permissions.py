@@ -48,18 +48,9 @@ class HasRolePermission(BasePermission):
             'partial_update': 'update',
             'destroy': 'delete',
         }
-
-        for user_permission in user_permissions:
-            # Compare the permission model with the object's content type
-            if user_permission.perm.perm_model == obj_content_type:
-                # Compare the permission's language with the object's language
-                if obj.lang == user_permission.perm.lang:
-                    if mapped_view_action.get(view.action) == user_permission.perm.action:
-                        if view.action in ['update', 'partial_update', 'destroy']:
-                            if obj.author == user:
-                                return True
-                        else:
-                            return True
+        if check_user_permission_for_object(
+            user, obj, view.action, mapped_view_action):
+            return True
         return False
 
     def check_superuser(self, user):
@@ -111,3 +102,22 @@ class HasRolePermission(BasePermission):
 
         # If no permission matches, return False for this language
         return False
+    
+
+
+def check_user_is_owner(user, obj):
+    return obj.author == user
+
+
+def check_user_permission_for_object(user, obj, mapped_action, action):
+    user_permissions = user.role_perms.all()
+    obj_content_type = ContentType.objects.get_for_model(obj)
+    for user_permission in user_permissions:
+            if user_permission.perm.perm_model == obj_content_type:
+                if obj.lang == user_permission.perm.lang:
+                    if mapped_action == user_permission.perm.action:
+                        if action in ['update', 'partial_update', 'destroy']:
+                            return check_user_is_owner(user, obj)
+                        else:
+                            return True
+    return False

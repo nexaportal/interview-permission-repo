@@ -134,9 +134,13 @@ class FieldPermissionSerializer(serializers.ModelSerializer):
 
             # Check if the permission applies to the correct model (content type) and action
             if perm.perm_model == content_type and perm.action == permission_action:
+            # if perm.perm_model == content_type:
                 # If the permission is for a specific field, add that field to allowed_fields
                 if perm.field:
-                    allowed_fields.add(perm.field)
+                    if perm.field == '*':
+                        allowed_fields.update(self.fields.keys())
+                    else:
+                        allowed_fields.add(perm.field)
                 else:
                     # If no field restriction, allow all fields (wildcard permission)
                     allowed_fields.update(self.fields.keys())
