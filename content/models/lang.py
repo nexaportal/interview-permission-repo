@@ -7,8 +7,8 @@ class Language(models.Model):
     code = models.CharField(_("code"), max_length=2)
 
     class Meta:
-        verbose_name = _("post")
-        verbose_name_plural = _("posts")
+        verbose_name = _("language")
+        verbose_name_plural = _("languages")
 
     def __str__(self):
         return self.name

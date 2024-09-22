@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Category(models.Model):
-    user = models.ForeignKey("account.User", on_delete=models.CASCADE, verbose_name=_("user"))
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
 
@@ -16,9 +15,12 @@ class Category(models.Model):
 
 
 class CategoryItem(models.Model):
-    category = models.ForeignKey("content.POST", on_delete=models.CASCADE, verbose_name=_("post"))
+    category = models.ForeignKey("content.Category", on_delete=models.CASCADE, verbose_name=_("category"))
     lang = models.ForeignKey(
-        "content.Language", on_delete=models.DO_NOTHING, verbose_name=_("language"), related_name="lang_items"
+        "content.Language",
+        on_delete=models.DO_NOTHING,
+        verbose_name=_("language"),
+        related_name="category_lang_items",  # former related_name="lang_items"
     )
     author = models.ForeignKey("account.User", on_delete=models.CASCADE, verbose_name=_("author"))
 
@@ -28,8 +30,8 @@ class CategoryItem(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
 
     class Meta:
-        verbose_name = _("post")
-        verbose_name_plural = _("posts")
+        verbose_name = _("category item")
+        verbose_name_plural = _("category items")
 
     def __str__(self):
-        return self.title
+        return self.name

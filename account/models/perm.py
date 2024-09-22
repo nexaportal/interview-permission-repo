@@ -18,10 +18,19 @@ class Perm(models.Model):
     perm_model = models.ForeignKey(ContentType, models.CASCADE, verbose_name=_("model"), related_name="perm_model")
     action = models.CharField(choices=PermissionActionChoices.choices, verbose_name=_("action"), max_length=100)
     field = models.CharField(_("field"), max_length=100, blank=True, null=True)
+    lang = models.ForeignKey(
+        "content.Language",
+        on_delete=models.CASCADE,
+        verbose_name=_("language"),
+        null=True,
+        blank=True,
+        related_name="language_perms",
+    )
 
     class Meta:
-        verbose_name = "Role"
-        verbose_name_plural = "Roles"
+        db_table = "perm"
+        verbose_name = "Permission"
+        verbose_name_plural = "Permissions"
         ordering = ["name"]
 
     def __str__(self):
