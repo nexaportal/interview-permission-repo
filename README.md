@@ -1,3 +1,4 @@
+
 # Project Name
 
 A Django application utilizing Django REST Framework (DRF) with token authentication, featuring a custom permission system based on user roles and language-specific permissions.
@@ -226,4 +227,11 @@ The tests cover various scenarios, including:
 This project demonstrates a robust permission system that integrates role-based access control with language-specific permissions. By following the setup instructions and understanding the permission flow, you can effectively utilize and extend the system for your application's needs.
 
 For further assistance or to contribute to the project, please refer to the repository's issue tracker or contact the maintainers.
+=======
+Checkout to `dev` branch.
+
+Test project's definitions and requirements:
+
+https://docs.google.com/document/d/19Pmr3BzNwnakKvO1jn5vU4Lagh2AuZcGaM32shlrzSk/edit?usp=sharing
+
 
