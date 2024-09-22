@@ -1,27 +1,31 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
-from django.utils.translation import gettext_lazy as _
+
+from phonenumber_field.modelfields import PhoneNumberField
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+
+from .role import Role
 
 
 class User(AbstractUser):
     """Model definition for User."""
 
-    """
-    @TODO you should save mobile number without first zero.
-            for example: 9112223344 (10 numbers)
-    @TODO you should add validation for mobile `validate_mobile_number`
-    """
-    mobile = models.CharField(
-        _("mobile"),
-        max_length=10,
-        unique=True,
-        # validators=[validate_mobile_number],   # @TODO <- here
-    )
-
-    class Meta:
-        table_name = "user"
-        verbose_name = "User"
-        verbose_name_plural = "Users"
+    mobile = PhoneNumberField(unique=True)
+    roles = models.ManyToManyField(Role, blank=True)
 
     def __str__(self):
-        return self.username
+        return str(self.mobile)
+
+    def get_jwt_tokens(self):
+        token = (
+            OutstandingToken.objects.filter(user=self, expires_at__gt=timezone.now(), blacklistedtoken__isnull=True)
+            .order_by("-created_at")
+            .first()
+        )
+
+        refresh = RefreshToken.for_user(self) if not token else RefreshToken(token.token)
+
+        return {"refresh": str(refresh), "access": str(refresh.access_token)}

@@ -1,6 +1,3 @@
-Checkout to `dev` branch.
-
-Test project's definitions and requirements:
-
-https://docs.google.com/document/d/19Pmr3BzNwnakKvO1jn5vU4Lagh2AuZcGaM32shlrzSk/edit?usp=sharing
-
+### Contribution
+Before start coding make sure you installed all packages and the git pre-commit hook.
+In order to install git pre-commit hook run `pre-commit install`.(Make sure you do this after installing pre-commit python package)

@@ -1,0 +1,15 @@
+-r base.txt
+
+# to use jupyter
+django-extensions~=3.2.3
+jupyter
+
+django-debug-toolbar~=4.2.0
+
+# Code quality
+black~=23.7.0
+pre-commit~=3.4.0
+ruff~=0.0.287
+
+# swagger openAPI
+drf-spectacular~=0.26.4
